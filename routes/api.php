@@ -22,6 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('api/trips/{id}', [TripController::class, 'show']);
     Route::put('api/trips/{id}', [TripController::class, 'update'])->middleware('can:update,trip');
     Route::delete('api/trips/{id}', [TripController::class, 'destroy'])->middleware('can:delete,trip');
+    // Search Trip function
+    Route::get('/trips', [TripController::class, 'searchTrip']);
 
     // Logout
     Route::post('/api/logout', [AuthController::class, 'logout']);

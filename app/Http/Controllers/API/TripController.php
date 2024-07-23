@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Trip;
+use DateTime;
 use Illuminate\Http\Request;
 
 
@@ -182,5 +183,81 @@ class TripController extends Controller
     {
         $trip->delete();
         return response()->json(null, 204);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/trips",
+     *     operationId="searchTrips",
+     *     tags={"Trips"},
+     *     summary="Search trips",
+     *     description="Search for trips based on start, end, and date parameters",
+     *     @OA\Parameter(
+     *         name="start",
+     *         in="query",
+     *         description="Starting point of the trip",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="end",
+     *         in="query",
+     *         description="Ending point of the trip",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="query",
+     *         description="Starting date of the trip",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Trip")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function searchTrip(Request $request)
+    {
+        $query = Trip::query();
+
+        if ($request->has('start')) {
+            $query->where('starting_point', 'like', '%' . $request->input('start') . '%');
+        }
+
+        if ($request->has('end')) {
+            $query->where('ending_point', 'like', '%' . $request->input('end') . '%');
+        }
+
+        if ($request->has('date')) {
+            $date = $request->input('date');
+            if (!$this->isValidDate($date)) {
+                return response()->json(['error' => 'Invalid date format'], 400);
+            }
+            $query->whereDate('starting_at', $date);
+        }
+
+        $trips = $query->get();
+
+        return response()->json($trips);
+    }
+
+    private function isValidDate($date)
+    {
+        $d = DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') === $date;
     }
 }

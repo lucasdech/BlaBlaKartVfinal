@@ -3,7 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Resources\UserResource\Widgets\UserOverview;
 use App\Filament\Widgets\StatsOverviewWidget;
+use App\Models\User;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -12,6 +14,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use App\Providers\Filament\Widgets\AccountWidget;
+use App\Providers\Filament\Widgets\StatsOverviewWidget as WidgetsStatsOverviewWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -43,7 +46,8 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class, 
                 FilamentInfoWidget::class,
-                StatsOverviewWidget::class,
+                WidgetsStatsOverviewWidget::class,
+                UserOverview::class,
             ])
             ->middleware([
                 EncryptCookies::class,

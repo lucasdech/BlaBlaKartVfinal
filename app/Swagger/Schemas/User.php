@@ -9,12 +9,6 @@ namespace App\Swagger\Schemas;
  *     title="User",
  *     properties={
  *         @OA\Property(
- *             property="id",
- *             type="integer",
- *             description="The user ID",
- *             example=1
- *         ),
- *         @OA\Property(
  *             property="firstname",
  *             type="string",
  *             description="The first name of the user",
@@ -37,6 +31,12 @@ namespace App\Swagger\Schemas;
  *             type="string",
  *             description="The user's password (hashed)",
  *             example="$2y$10$abcdefghijklmnopqrstuv"
+ *         ),
+ *         @OA\Property(
+ *             property="avatar",
+ *             type="string",
+ *             description="The path to the user's avatar",
+ *             example="avatars/1.jpg"
  *         ),
  *         @OA\Property(
  *             property="created_at",

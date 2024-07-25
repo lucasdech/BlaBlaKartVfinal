@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Providers\Filament\Widgets;
 
 use App\Models\User;
 use App\Models\Trip;

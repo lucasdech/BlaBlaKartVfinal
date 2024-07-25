@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Widgets\StatsOverviewWidget;
+use App\Providers\Filament\Widgets\StatsOverviewWidget as WidgetsStatsOverviewWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
@@ -12,7 +12,7 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            StatsOverviewWidget::class,
+            WidgetsStatsOverviewWidget::class,
         ];
     }
 

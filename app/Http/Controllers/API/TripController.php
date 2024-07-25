@@ -230,34 +230,11 @@ class TripController extends Controller
      *     )
      * )
      */
-    public function searchTrip(Request $request)
-    {
-        $query = Trip::query();
+    
 
-        if ($request->has('start')) {
-            $query->where('starting_point', 'like', '%' . $request->input('start') . '%');
-        }
-
-        if ($request->has('end')) {
-            $query->where('ending_point', 'like', '%' . $request->input('end') . '%');
-        }
-
-        if ($request->has('date')) {
-            $date = $request->input('date');
-            if (!$this->isValidDate($date)) {
-                return response()->json(['error' => 'Invalid date format'], 400);
-            }
-            $query->whereDate('starting_at', $date);
-        }
-
-        $trips = $query->get();
-
-        return response()->json($trips);
-    }
-
-    private function isValidDate($date)
-    {
-        $d = DateTime::createFromFormat('Y-m-d', $date);
-        return $d && $d->format('Y-m-d') === $date;
-    }
+    // private function isValidDate($date)
+    // {
+    //     $d = DateTime::createFromFormat('Y-m-d', $date);
+    //     return $d && $d->format('Y-m-d') === $date;
+    // }
 }

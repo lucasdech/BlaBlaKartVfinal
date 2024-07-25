@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -17,7 +18,7 @@ class UserController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/users",
+     *     path="/api/register",
      *     summary="Create a new user",
      *     tags={"Users"},
      *     @OA\RequestBody(
@@ -38,36 +39,19 @@ class UserController extends Controller
             'lastname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'avatar' => 'nullable|image|max:1024', // Max 1MB
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $path;
+        }
+
         $user = User::create($validated);
 
         return response()->json($user, 201);
-    }
-
-    /**
-     * @OA\Get(
-     *     path="/api/users/{user}",
-     *     summary="Get a single user by ID",
-     *     tags={"Users"},
-     *     @OA\Parameter(
-     *         name="user",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="User details",
-     *         @OA\JsonContent(ref="#/components/schemas/User")
-     *     )
-     * )
-     */
-    public function show(User $user)
-    {
-        return response()->json($user);
     }
 
     /**
@@ -99,16 +83,50 @@ class UserController extends Controller
             'lastname' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8',
+            'avatar' => 'nullable|image|max:1024', // Max 1MB
         ]);
 
         if (isset($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         }
 
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $path;
+        }
+
         $user->update($validated);
 
         return response()->json($user);
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/users/{user}",
+     *     summary="Get a single user by ID",
+     *     tags={"Users"},
+     *     @OA\Parameter(
+     *         name="user",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User details",
+     *         @OA\JsonContent(ref="#/components/schemas/User")
+     *     )
+     * )
+     */
+    public function show(User $user)
+    {
+        return response()->json($user);
+    }
+
 
     /**
      * @OA\Delete(

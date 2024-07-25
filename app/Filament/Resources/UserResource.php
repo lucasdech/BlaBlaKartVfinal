@@ -10,6 +10,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
@@ -17,31 +21,47 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+    protected static ?string $recordTitleAttribute = 'firstname';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('firstname')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('lastname')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->required(fn (string $context): bool => $context === 'create'),
-                Forms\Components\Select::make('role')
-                    ->options([
-                        'user' => 'User',
-                        'admin' => 'Admin',
+                Forms\Components\Card::make()
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('firstname')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('lastname')
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (string $context): bool => $context === 'create')
+                            ->maxLength(255),
+                        Forms\Components\Select::make('role')
+                            ->options([
+                                'user' => 'User',
+                                'admin' => 'Admin',
+                            ])
+                            ->required(),
+                        FileUpload::make('avatar')
+                            ->image()
+                            ->maxSize(1024)
+                            ->disk('public')
+                            ->directory('avatars')
+                            ->columnSpanFull(),
                     ])
-                    ->required(),
+                    ->columns(2),
             ]);
     }
 
@@ -49,11 +69,32 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('firstname')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('lastname')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('email')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('role')->sortable(),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->circular()
+                    ->defaultImageUrl(url('/default-avatar.png'))
+                    ->size(40),
+                Tables\Columns\TextColumn::make('firstname')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('lastname')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\BadgeColumn::make('role')
+                    ->colors([
+                        'primary' => 'user',
+                        'danger' => 'admin',
+                    ]),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
@@ -61,14 +102,18 @@ class UserResource extends Resource
                         'user' => 'User',
                         'admin' => 'Admin',
                     ]),
+                TrashedFilter::make(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -85,7 +130,16 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
+            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

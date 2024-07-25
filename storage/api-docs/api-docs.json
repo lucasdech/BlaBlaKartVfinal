@@ -307,83 +307,13 @@
                 }
             }
         },
-        "/trips": {
-            "get": {
-                "tags": [
-                    "Trips"
-                ],
-                "summary": "Search trips",
-                "description": "Search for trips based on start, end, and date parameters",
-                "operationId": "searchTrips",
-                "parameters": [
-                    {
-                        "name": "start",
-                        "in": "query",
-                        "description": "Starting point of the trip",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "end",
-                        "in": "query",
-                        "description": "Ending point of the trip",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "date",
-                        "in": "query",
-                        "description": "Starting date of the trip",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Trip"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users": {
+        "/api/register": {
             "post": {
                 "tags": [
                     "Users"
                 ],
                 "summary": "Create a new user",
-                "operationId": "9fea6f2adcb69614c521a7733358382d",
+                "operationId": "d5af5d957fd5b15976d27088d7f6cc46",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -558,11 +488,6 @@
             "User": {
                 "title": "User",
                 "properties": {
-                    "id": {
-                        "description": "The user ID",
-                        "type": "integer",
-                        "example": 1
-                    },
                     "firstname": {
                         "description": "The first name of the user",
                         "type": "string",
@@ -582,6 +507,11 @@
                         "description": "The user's password (hashed)",
                         "type": "string",
                         "example": "$2y$10$abcdefghijklmnopqrstuv"
+                    },
+                    "avatar": {
+                        "description": "The path to the user's avatar",
+                        "type": "string",
+                        "example": "avatars/1.jpg"
                     },
                     "created_at": {
                         "description": "The time when the user was created",

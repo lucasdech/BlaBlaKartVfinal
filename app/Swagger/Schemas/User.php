@@ -5,7 +5,7 @@ namespace App\Swagger\Schemas;
 /**
  * @OA\Schema(
  *     schema="User",
- *     type="object",
+ *     type="object",          
  *     title="User",
  *     properties={
  *         @OA\Property(

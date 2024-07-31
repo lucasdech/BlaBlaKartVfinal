@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\TripController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\BookingController;
 
 // Public routes
 Route::post('/api/login', [AuthController::class, 'login']);
@@ -25,6 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('api/trips/{trip}', [TripController::class, 'show']);
     Route::put('api/trips/{trip}', [TripController::class, 'update'])->middleware('can:update,trip');
     Route::delete('api/trips/{trip}', [TripController::class, 'destroy'])->middleware('can:delete,trip');
+
+    // Booking route
+    Route::post('/api/booking', [BookingController::class, 'bookTrip']);
+    Route::delete('/api/booking/{trip_id}', [BookingController::class, 'cancelBooking']);
 
     // Logout
     Route::post('/api/logout', [AuthController::class, 'logout']);

@@ -111,6 +111,107 @@
                 ]
             }
         },
+        "/api/booking": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Book a trip for the authenticated user",
+                "operationId": "b8b0690ad82738470115e0952a3f518c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "trip_id"
+                                ],
+                                "properties": {
+                                    "trip_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Trip booked successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "trip": {
+                                            "$ref": "#/components/schemas/Trip"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not found"
+                    },
+                    "422": {
+                        "description": "Validation error or No available seats"
+                    }
+                }
+            }
+        },
+        "/api/booking/{trip_id}": {
+            "delete": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Cancel a trip booking for the authenticated user",
+                "operationId": "2d9b460d18085aed16bc7c9fb7b53c61",
+                "parameters": [
+                    {
+                        "name": "trip_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "trip": {
+                                            "$ref": "#/components/schemas/Trip"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Trip not found or not booked"
+                    }
+                }
+            }
+        },
         "/api/trips": {
             "get": {
                 "tags": [
@@ -542,6 +643,10 @@
         {
             "name": "Authentication",
             "description": "Authentication"
+        },
+        {
+            "name": "Bookings",
+            "description": "Bookings"
         },
         {
             "name": "Trips",

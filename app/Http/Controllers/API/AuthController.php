@@ -44,20 +44,18 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
+        $inputs = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
+       
+        if (! $token = auth("api")->attempt($inputs)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         
         Log::info('User logged in', [
             'user_id' => $user->id,
@@ -69,6 +67,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'user' => $user,
         ]);
     }
 

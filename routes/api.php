@@ -13,7 +13,10 @@ Route::post('/api/register', [UserController::class, 'store']);
 Route::get('/trips', [TripController::class, 'searchTrip']);
 
 // Protected routes
-Route::middleware('auth:sanctum')->group(function () {
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function ($router) {
     // User routes
     Route::get('/api/users', [UserController::class, 'index'])->middleware('admin');
     Route::get('/api/users/{user}', [UserController::class, 'show'])->middleware('can:view,user');

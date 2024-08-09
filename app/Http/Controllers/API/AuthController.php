@@ -48,7 +48,7 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-       
+
         if (! $token = auth("api")->attempt($inputs)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
@@ -56,7 +56,7 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->firstOrFail();
-        
+
         Log::info('User logged in', [
             'user_id' => $user->id,
             'email' => $user->email,
@@ -70,36 +70,4 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
-
-    /**
-     * @OA\Post(
-     *     path="/api/logout",
-     *     summary="Logout a user",
-     *     tags={"Authentication"},
-     *     security={{"bearerAuth": {}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Logged out successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Logged out successfully")
-     *         )
-     *     )
-     * )
-     */
-    public function logout(Request $request)
-{
-    $user = $request->user();
-    
-    if ($user) {
-        $token = $user->currentAccessToken();
-        
-        if ($token && !($token instanceof TransientToken)) {
-            $token->delete();
-        }
-        // Revoke all tokens
-        $user->tokens()->delete();
-    }
-
-    return response()->json(['message' => 'Logged out successfully']);
-}
 }
